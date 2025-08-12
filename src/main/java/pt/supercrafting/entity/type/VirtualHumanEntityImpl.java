@@ -1,0 +1,117 @@
+package pt.supercrafting.entity.type;
+
+import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
+import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
+import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
+import com.github.retrooper.packetevents.protocol.player.GameMode;
+import com.github.retrooper.packetevents.protocol.player.TextureProperty;
+import com.github.retrooper.packetevents.protocol.player.UserProfile;
+import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfo;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnPlayer;
+import io.github.retrooper.packetevents.util.SpigotConversionUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
+
+final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualHumanEntity {
+
+    private boolean bodyAlign = true;
+    private UserProfile profile;
+    private Component tabName;
+
+    public VirtualHumanEntityImpl(int id, @NotNull Location location) {
+        super(id, EntityTypes.PLAYER, location);
+        profile(new UserProfile(
+                location.getWorld().getUID(),
+                "VH_" + id,
+                new ArrayList<>()
+        ));
+    }
+
+    @Override
+    protected @NotNull VirtualEntityPacketFactory packetFactory() {
+        return new HumanPacketFactory();
+    }
+
+    @Override
+    public @NotNull UserProfile profile() {
+        return profile;
+    }
+
+    @Override
+    public void profile(@NotNull UserProfile profile) {
+        this.profile = Objects.requireNonNull(profile, "UserProfile cannot be null");
+        this.tabName = Component.text(profile.getName(), NamedTextColor.DARK_GRAY);
+    }
+
+    @Override
+    public boolean bodyAlign() {
+        return bodyAlign;
+    }
+
+    @Override
+    public void bodyAlign(boolean align) {
+        this.bodyAlign = align;
+    }
+
+    @Override
+    public void skin(@NotNull Skin skin) {
+        Objects.requireNonNull(skin, "Skin cannot be null");
+
+        UserProfile skinnedProfile = new UserProfile(
+                profile.getUUID(),
+                profile.getName(),
+                new ArrayList<>(
+                        Collections.singleton(
+                                new TextureProperty("textures", skin.value(), skin.signature())
+                        )
+                )
+        );
+        this.profile(skinnedProfile);
+    }
+
+    public WrapperPlayServerPlayerInfo.PlayerData toPlayerData() {
+        return new WrapperPlayServerPlayerInfo.PlayerData(
+            tabName,
+            profile,
+            GameMode.CREATIVE,
+            1
+        );
+    }
+
+    private class HumanPacketFactory implements VirtualEntityPacketFactory {
+
+        private static final EntityData<?> SKIN_FLAG = new EntityData<>(10, EntityDataTypes.BYTE, (byte) 127);
+
+        @Override
+        public Collection<PacketWrapper<?>> spawn() {
+            Location location = VirtualHumanEntityImpl.this.location();
+            return List.of(
+                    new WrapperPlayServerPlayerInfo(WrapperPlayServerPlayerInfo.Action.ADD_PLAYER, toPlayerData()),
+                    new WrapperPlayServerSpawnPlayer(
+                            id(),
+                            profile.getUUID(),
+                            SpigotConversionUtil.fromBukkitLocation(location),
+                            new ArrayList<>(
+                                    List.of(SKIN_FLAG)
+                            )
+                    )
+            );
+        }
+
+        @Override
+        public Collection<PacketWrapper<?>> destroy() {
+            return List.of(
+                    new WrapperPlayServerDestroyEntities(id()),
+                    new WrapperPlayServerPlayerInfo(WrapperPlayServerPlayerInfo.Action.REMOVE_PLAYER, toPlayerData())
+            );
+        }
+
+    }
+
+}

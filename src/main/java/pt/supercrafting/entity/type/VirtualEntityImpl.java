@@ -1,0 +1,109 @@
+package pt.supercrafting.entity.type;
+
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.protocol.entity.type.EntityType;
+import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import pt.supercrafting.entity.equipment.VirtualEntityEquipment;
+import pt.supercrafting.entity.update.VirtualEntityUpdate;
+import pt.supercrafting.entity.visibility.VirtualEntityVisibility;
+
+import java.util.Collection;
+import java.util.Objects;
+
+sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEntityImpl, VirtualHumanEntityImpl {
+
+    private final int id;
+    private final EntityType type;
+    private boolean valid = true;
+
+    private Location location;
+    private final VirtualEntityEquipment equipment = VirtualEntityEquipment.create(this);
+    private final VirtualEntityVisibility visibility = VirtualEntityVisibility.create(this);
+
+    private final VirtualEntityPacketFactory packetFactory;
+
+    public VirtualEntityImpl(int id, @NotNull EntityType type, @NotNull Location location) {
+        this.id = id;
+        this.type = Objects.requireNonNull(type, "type cannot be null");
+        this.location(location);
+        this.packetFactory = packetFactory();
+    }
+
+    @NotNull
+    @ApiStatus.Internal
+    protected VirtualEntityPacketFactory packetFactory() {
+        return new VirtualEntityPacketFactory.Default(this);
+    }
+
+    @Override
+    public int id() {
+        return id;
+    }
+
+    @Override
+    public @NotNull EntityType type() {
+        return type;
+    }
+
+    @Override
+    public boolean isValid() {
+        return valid;
+    }
+
+    @Override
+    public void remove() {
+        if(!valid)
+            return;
+
+        valid = false;
+    }
+
+    @Override
+    public @NotNull Location location() {
+        return location.clone();
+    }
+
+    @Override
+    public @NotNull World world() {
+        return location.getWorld();
+    }
+
+    @Override
+    public void location(@NotNull Location location) {
+        this.location = Objects.requireNonNull(location, "location cannot be null");
+    }
+
+    @Override
+    public @NotNull VirtualEntityEquipment equipment() {
+        return equipment;
+    }
+
+    @Override
+    public @NotNull VirtualEntityVisibility visibility() {
+        return visibility;
+    }
+
+    @Override
+    public void update(@NotNull VirtualEntityUpdate update, @Nullable Collection<Player> viewers) {
+        if(viewers == null)
+            viewers = this.visibility.viewers();
+
+        if(viewers.isEmpty())
+            return;
+
+        Collection<PacketWrapper<?>> packets = update.packets(this);
+        if(packets.isEmpty())
+            return;
+
+        for (PacketWrapper<?> packet : packets)
+            for (Player viewer : viewers)
+                PacketEvents.getAPI().getPlayerManager().sendPacket(viewer, packet);
+    }
+
+}
