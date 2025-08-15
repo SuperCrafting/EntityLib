@@ -15,6 +15,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
+import pt.supercrafting.entity.equipment.VirtualEntityEquipment;
 
 import java.util.*;
 
@@ -35,7 +36,7 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
 
     @Override
     protected @NotNull VirtualEntityPacketFactory packetFactory() {
-        return new HumanPacketFactory();
+        return new PacketFactory();
     }
 
     @Override
@@ -84,24 +85,31 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
         );
     }
 
-    private class HumanPacketFactory implements VirtualEntityPacketFactory {
+    private final class PacketFactory implements VirtualEntityPacketFactory {
 
         private static final EntityData<?> SKIN_FLAG = new EntityData<>(10, EntityDataTypes.BYTE, (byte) 127);
 
         @Override
         public Collection<PacketWrapper<?>> spawn() {
             Location location = VirtualHumanEntityImpl.this.location();
-            return List.of(
-                    new WrapperPlayServerPlayerInfo(WrapperPlayServerPlayerInfo.Action.ADD_PLAYER, toPlayerData()),
-                    new WrapperPlayServerSpawnPlayer(
-                            id(),
-                            profile.getUUID(),
-                            SpigotConversionUtil.fromBukkitLocation(location),
-                            new ArrayList<>(
-                                    List.of(SKIN_FLAG)
-                            )
+
+            List<PacketWrapper<?>> packets = new ArrayList<>(4);
+
+            packets.add(new WrapperPlayServerPlayerInfo(WrapperPlayServerPlayerInfo.Action.ADD_PLAYER, toPlayerData()));
+            packets.add(new WrapperPlayServerSpawnPlayer(
+                    id(),
+                    profile.getUUID(),
+                    SpigotConversionUtil.fromBukkitLocation(location),
+                    new ArrayList<>(
+                            List.of(SKIN_FLAG)
                     )
-            );
+            ));
+
+            VirtualEntityEquipment equipment = VirtualHumanEntityImpl.this.equipment();
+            if(!equipment.isEmpty())
+                packets.addAll(equipment.toUpdate().packets(VirtualHumanEntityImpl.this));
+
+            return packets;
         }
 
         @Override
@@ -110,6 +118,11 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
                     new WrapperPlayServerDestroyEntities(id()),
                     new WrapperPlayServerPlayerInfo(WrapperPlayServerPlayerInfo.Action.REMOVE_PLAYER, toPlayerData())
             );
+        }
+
+        @Override
+        public Collection<EntityData<?>> dataWatcher() {
+            return Collections.singletonList(SKIN_FLAG);
         }
 
     }

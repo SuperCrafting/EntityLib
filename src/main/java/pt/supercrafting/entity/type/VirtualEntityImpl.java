@@ -38,7 +38,7 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
     @NotNull
     @ApiStatus.Internal
     protected VirtualEntityPacketFactory packetFactory() {
-        return new VirtualEntityPacketFactory.Default(this);
+        return new VirtualEntityPacketFactory.FallBack(this);
     }
 
     @Override

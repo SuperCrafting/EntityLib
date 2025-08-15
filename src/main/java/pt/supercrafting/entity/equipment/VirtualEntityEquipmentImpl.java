@@ -25,6 +25,27 @@ record VirtualEntityEquipmentImpl(@NotNull VirtualEntity entity, @NotNull Map<@N
     }
 
     @Override
+    public boolean isEmpty() {
+        if(this.handle.isEmpty())
+            return true;
+
+        for (@Nullable ItemStack item : this.handle.values())
+            if(item != null)
+                return false;
+        return true;
+    }
+
+    @Override
+    public int size() {
+        return this.handle.size();
+    }
+
+    @Override
+    public boolean isEquipped(@NotNull EquipmentSlot slot) {
+        return handle.containsKey(slot) && handle.get(slot) != null;
+    }
+
+    @Override
     public @Nullable ItemStack get(@NotNull EquipmentSlot slot) {
         Objects.requireNonNull(slot, "slot cannot be null");
         return handle.get(slot);
@@ -34,8 +55,27 @@ record VirtualEntityEquipmentImpl(@NotNull VirtualEntity entity, @NotNull Map<@N
     @Override
     public VirtualEntityUpdate set(@NotNull EquipmentSlot slot, @Nullable ItemStack item) {
         Objects.requireNonNull(slot, "slot cannot be null");
-        handle.put(slot, item);
+        if(item != null)
+            handle.put(slot, item);
+        else
+            handle.remove(slot);
         return VirtualEntityUpdate.equipment(slot, item);
+    }
+
+    @Override
+    public @NotNull VirtualEntityUpdate unset(@NotNull EquipmentSlot slot) {
+        return set(slot, null);
+    }
+
+    @Override
+    public @NotNull VirtualEntityUpdate clear() {
+        this.handle.clear();
+        return toUpdate();
+    }
+
+    @Override
+    public @NotNull VirtualEntityUpdate toUpdate() {
+        return VirtualEntityUpdate.equipment(this.handle);
     }
 
 }

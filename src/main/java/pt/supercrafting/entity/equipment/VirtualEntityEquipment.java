@@ -9,11 +9,26 @@ import pt.supercrafting.entity.update.VirtualEntityUpdate;
 
 public interface VirtualEntityEquipment {
 
+    boolean isEmpty();
+
+    int size();
+
+    boolean isEquipped(@NotNull EquipmentSlot slot);
+
     @Nullable
     ItemStack get(@NotNull EquipmentSlot slot);
 
     @NotNull
     VirtualEntityUpdate set(@NotNull EquipmentSlot slot, @Nullable ItemStack item);
+
+    @NotNull
+    VirtualEntityUpdate unset(@NotNull EquipmentSlot slot);
+
+    @NotNull
+    VirtualEntityUpdate clear();
+
+    @NotNull
+    VirtualEntityUpdate toUpdate();
 
     @NotNull
     static VirtualEntityEquipment create(@NotNull VirtualEntity entity) {
