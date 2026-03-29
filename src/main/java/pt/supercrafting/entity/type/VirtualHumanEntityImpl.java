@@ -7,17 +7,21 @@ import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.protocol.player.TextureProperty;
 import com.github.retrooper.packetevents.protocol.player.UserProfile;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfo;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnPlayer;
+import com.github.retrooper.packetevents.wrapper.play.server.*;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import pt.supercrafting.entity.equipment.VirtualEntityEquipment;
+import pt.supercrafting.entity.update.VirtualEntityUpdate;
 
 import java.util.*;
+
+import static net.kyori.adventure.text.Component.empty;
 
 final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualHumanEntity {
 
@@ -35,8 +39,16 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
     }
 
     @Override
-    protected @NotNull VirtualEntityPacketFactory packetFactory() {
+    public @NotNull VirtualEntityPacketFactory packetFactory() {
         return new PacketFactory();
+    }
+
+    @Override
+    public void onSpawn(final Player player) {
+        Bukkit.getScheduler().runTaskLater(JavaPlugin.getProvidingPlugin(this.getClass()), () -> {
+            this.update(VirtualEntityUpdate.playerInfo(WrapperPlayServerPlayerInfo.Action.REMOVE_PLAYER));
+            this.update(VirtualEntityUpdate.animation(WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_MAIN_ARM));
+        }, 20L);
     }
 
     @Override
@@ -76,12 +88,13 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
         this.profile(skinnedProfile);
     }
 
+    @Override
     public WrapperPlayServerPlayerInfo.PlayerData toPlayerData() {
         return new WrapperPlayServerPlayerInfo.PlayerData(
-            tabName,
-            profile,
-            GameMode.CREATIVE,
-            1
+                tabName,
+                profile,
+                GameMode.CREATIVE,
+                1
         );
     }
 
@@ -91,7 +104,8 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
 
         @Override
         public Collection<PacketWrapper<?>> spawn() {
-            Location location = VirtualHumanEntityImpl.this.location();
+            final var human = VirtualHumanEntityImpl.this;
+            Location location = human.location();
 
             List<PacketWrapper<?>> packets = new ArrayList<>(4);
 
@@ -105,10 +119,29 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
                     )
             ));
 
-            VirtualEntityEquipment equipment = VirtualHumanEntityImpl.this.equipment();
-            if(!equipment.isEmpty())
-                packets.addAll(equipment.toUpdate().packets(VirtualHumanEntityImpl.this));
+            VirtualEntityEquipment equipment = human.equipment();
+            if (!equipment.isEmpty()) {
+                packets.addAll(equipment.toUpdate().packets(human));
+            }
 
+            packets.addAll(VirtualEntityUpdate.team(
+                    "npc",
+                    empty(),
+                    NamedTextColor.GOLD,
+                    empty(),
+                    empty(),
+                    WrapperPlayServerTeams.NameTagVisibility.NEVER,
+                    WrapperPlayServerTeams.CollisionRule.NEVER,
+                    WrapperPlayServerTeams.OptionData.NONE,
+                    Collections.singleton(profile.getName())
+            ).packets(human));
+
+            final var data = new ArrayList<EntityData<?>>();
+            data.add(new EntityData<>(10, EntityDataTypes.BYTE, (byte) (0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40)));
+            final var metadataPacket = new WrapperPlayServerEntityMetadata(human.id(), data);
+            packets.add(metadataPacket);
+
+            packets.add(new WrapperPlayServerEntityHeadLook(human.id(), location.getYaw()));
             return packets;
         }
 

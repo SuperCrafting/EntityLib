@@ -1,17 +1,19 @@
 package pt.supercrafting.entity.visibility;
 
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityAnimation;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pt.supercrafting.entity.type.VirtualEntity;
+import pt.supercrafting.entity.update.VirtualEntityUpdate;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-record VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity, @NotNull Map<UUID, VirtualEntityVisibilityRule> rules, @NotNull Collection<Player> viewers) implements VirtualEntityVisibility {
+record VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity, @NotNull Map<UUID, VirtualEntityVisibilityRule> rules,
+                                   @NotNull Collection<Player> viewers) implements VirtualEntityVisibility {
 
     public VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity) {
         this(entity, new ConcurrentHashMap<>(), ConcurrentHashMap.newKeySet(4));
@@ -25,11 +27,17 @@ record VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity, @NotNull Map<U
 
     @Override
     public void run() {
-
-        if(!this.entity.isValid())
+        if (!this.entity.isValid()) {
             return;
+        }
 
-
+        for (final var player : this.viewers) {
+            if (!this.canSee(this.entity, player) && this.isViewer(player)) {
+                this.removeViewer(player);
+            } else if (this.canSee(this.entity, player) && !this.isViewer(player)) {
+                this.addViewer(player);
+            }
+        }
     }
 
     @Override
@@ -39,11 +47,14 @@ record VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity, @NotNull Map<U
 
     @Override
     public boolean addViewer(@NotNull Player player) {
+        this.entity.update(update -> update.packetFactory().spawn(), Collections.singleton(player));
+        this.entity.onSpawn(player);
         return viewers.add(player);
     }
 
     @Override
     public boolean removeViewer(@NotNull Player player) {
+        this.entity.update(update -> update.packetFactory().destroy(), Collections.singleton(player));
         return viewers.remove(player);
     }
 
@@ -64,7 +75,7 @@ record VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity, @NotNull Map<U
     @Override
     public boolean canSee(@NotNull VirtualEntity entity, @NotNull Player player) {
         for (VirtualEntityVisibilityRule rule : this.rules.values())
-            if(!rule.canSee(entity, player))
+            if (!rule.canSee(entity, player))
                 return false;
         return true;
     }

@@ -13,9 +13,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public record TeamUpdate(@NotNull String id, @NotNull Component name, @NotNull NamedTextColor color, @Nullable Component prefix, @Nullable Component suffix, @NotNull WrapperPlayServerTeams.NameTagVisibility tagVisibility, @Nullable WrapperPlayServerTeams.CollisionRule collisionRule, @Nullable WrapperPlayServerTeams.OptionData optionData, @NotNull Collection<String> members) implements VirtualEntityUpdate {
+public record TeamUpdate(@NotNull String id, @NotNull Component name, @NotNull NamedTextColor color, @Nullable Component prefix, @Nullable Component suffix, @NotNull WrapperPlayServerTeams.NameTagVisibility tagVisibility, @NotNull WrapperPlayServerTeams.CollisionRule collisionRule, @Nullable WrapperPlayServerTeams.OptionData optionData, @NotNull Collection<String> members) implements VirtualEntityUpdate {
 
-    public TeamUpdate(@NotNull String id, @NotNull Component name, @NotNull NamedTextColor color, @Nullable Component prefix, @Nullable Component suffix, @NotNull WrapperPlayServerTeams.NameTagVisibility tagVisibility, @Nullable WrapperPlayServerTeams.CollisionRule collisionRule, @Nullable WrapperPlayServerTeams.OptionData optionData, @NotNull Collection<String> members) {
+    public TeamUpdate(@NotNull String id, @NotNull Component name, @NotNull NamedTextColor color, @Nullable Component prefix, @Nullable Component suffix, @NotNull WrapperPlayServerTeams.NameTagVisibility tagVisibility, @NotNull WrapperPlayServerTeams.CollisionRule collisionRule, @Nullable WrapperPlayServerTeams.OptionData optionData, @NotNull Collection<String> members) {
         this.id = Objects.requireNonNull(id, "id cannot be null");
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.color = Objects.requireNonNull(color, "color cannot be null");

@@ -20,7 +20,7 @@ public final class VirtualBukkitEntityImpl<E extends Entity> extends VirtualEnti
     }
 
     @Override
-    protected @NotNull VirtualEntityPacketFactory packetFactory() {
+    public @NotNull VirtualEntityPacketFactory packetFactory() {
         return new PacketFactory();
     }
 

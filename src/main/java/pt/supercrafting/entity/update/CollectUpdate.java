@@ -10,11 +10,6 @@ import java.util.Collections;
 
 record CollectUpdate(int pickedId, int count) implements VirtualEntityUpdate {
 
-    public CollectUpdate(int pickedId, int count) {
-        this.pickedId = pickedId;
-        this.count = count;
-    }
-
     @Override
     public @NotNull Collection<PacketWrapper<?>> packets(@NotNull VirtualEntity entity) {
         return Collections.singleton(

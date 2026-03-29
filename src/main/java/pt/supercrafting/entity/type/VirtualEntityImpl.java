@@ -3,17 +3,20 @@ package pt.supercrafting.entity.type;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityType;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import com.google.common.collect.Lists;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import pt.supercrafting.entity.equipment.VirtualEntityEquipment;
+import pt.supercrafting.entity.tick.TickingAction;
 import pt.supercrafting.entity.update.VirtualEntityUpdate;
 import pt.supercrafting.entity.visibility.VirtualEntityVisibility;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEntityImpl, VirtualHumanEntityImpl {
@@ -26,24 +29,42 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
     private final VirtualEntityEquipment equipment = VirtualEntityEquipment.create(this);
     private final VirtualEntityVisibility visibility = VirtualEntityVisibility.create(this);
 
+    private final Collection<@NotNull TickingAction> actions;
+
     private final VirtualEntityPacketFactory packetFactory;
 
     public VirtualEntityImpl(int id, @NotNull EntityType type, @NotNull Location location) {
         this.id = id;
         this.type = Objects.requireNonNull(type, "type cannot be null");
+        this.actions = Lists.newArrayList();
         this.location(location);
         this.packetFactory = packetFactory();
     }
 
     @NotNull
-    @ApiStatus.Internal
-    protected VirtualEntityPacketFactory packetFactory() {
+    @Override
+    public VirtualEntityPacketFactory packetFactory() {
         return new VirtualEntityPacketFactory.FallBack(this);
     }
 
     @Override
     public int id() {
         return id;
+    }
+
+    @Override
+    public @UnmodifiableView Collection<@NotNull TickingAction> tickingActions() {
+        return List.copyOf(this.actions);
+    }
+
+    @Override
+    public void registerTickingAction(final @NotNull TickingAction action) {
+        this.actions.add(action);
+    }
+
+    @Override
+    public void unregisterTickingAction(final @NotNull TickingAction action) {
+        this.actions.remove(action);
     }
 
     @Override
@@ -58,7 +79,7 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
 
     @Override
     public void remove() {
-        if(!valid)
+        if (!valid)
             return;
 
         valid = false;
@@ -91,19 +112,25 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
 
     @Override
     public void update(@NotNull VirtualEntityUpdate update, @Nullable Collection<Player> viewers) {
-        if(viewers == null)
+        if (viewers == null) {
             viewers = this.visibility.viewers();
+        }
 
-        if(viewers.isEmpty())
+        if (viewers.isEmpty()) {
             return;
+        }
 
         Collection<PacketWrapper<?>> packets = update.packets(this);
-        if(packets.isEmpty())
+        if (packets.isEmpty()) {
             return;
+        }
 
-        for (PacketWrapper<?> packet : packets)
-            for (Player viewer : viewers)
+        for (PacketWrapper<?> packet : packets) {
+            for (Player viewer : viewers) {
                 PacketEvents.getAPI().getPlayerManager().sendPacket(viewer, packet);
+                viewer.sendMessage("Packet sent: " + packet.getClass().getSimpleName());
+            }
+        }
     }
 
 }

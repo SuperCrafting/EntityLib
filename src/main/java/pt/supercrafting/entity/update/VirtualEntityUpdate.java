@@ -4,6 +4,7 @@ import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.player.EquipmentSlot;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityAnimation;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfo;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTeams;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -16,13 +17,13 @@ import pt.supercrafting.entity.type.VirtualEntity;
 
 import java.util.*;
 
-public sealed interface VirtualEntityUpdate permits AnimationUpdate, AttachUpdate, CollectUpdate, EquipmentUpdate, HeadRotationUpdate, MetadataUpdate, MoveUpdate, TeamUpdate, TeleportUpdate, VelocityUpdate {
+public interface VirtualEntityUpdate {
 
     @NotNull
     Collection<PacketWrapper<?>> packets(@NotNull VirtualEntity entity);
 
     @NotNull
-    static VirtualEntityUpdate animation(@NotNull WrapperPlayServerEntityAnimation.EntityAnimationType type){
+    static VirtualEntityUpdate animation(@NotNull WrapperPlayServerEntityAnimation.EntityAnimationType type) {
         return new AnimationUpdate(type);
     }
 
@@ -90,7 +91,7 @@ public sealed interface VirtualEntityUpdate permits AnimationUpdate, AttachUpdat
     }
 
     @NotNull
-    static VirtualEntityUpdate move(@NotNull Vector vector, float yaw, float pitch){
+    static VirtualEntityUpdate move(@NotNull Vector vector, float yaw, float pitch) {
         return new MoveUpdate(vector, yaw, pitch, false);
     }
 
@@ -119,4 +120,7 @@ public sealed interface VirtualEntityUpdate permits AnimationUpdate, AttachUpdat
         return new VelocityUpdate(vector);
     }
 
+    static @NotNull VirtualEntityUpdate playerInfo(final @NotNull WrapperPlayServerPlayerInfo.Action action) {
+        return new PlayerInfoUpdate(action);
+    }
 }

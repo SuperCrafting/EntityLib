@@ -1,0 +1,12 @@
+name: EntityLib
+version: 1.0.0
+main: pt.supercrafting.entity.EntityLibPlugin
+authors:
+  - SuperCrafting
+  - kurai
+  - Koneiii
+
+commands:
+  entitylib:
+    description: EntityLib command
+    usage: /<command>

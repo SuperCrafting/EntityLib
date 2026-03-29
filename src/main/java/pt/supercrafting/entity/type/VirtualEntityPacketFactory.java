@@ -16,7 +16,7 @@ import pt.supercrafting.entity.update.VirtualEntityUpdate;
 
 import java.util.*;
 
-interface VirtualEntityPacketFactory {
+public interface VirtualEntityPacketFactory {
 
     Collection<PacketWrapper<?>> spawn();
     Collection<PacketWrapper<?>> destroy();
@@ -85,11 +85,7 @@ interface VirtualEntityPacketFactory {
 
         @Override
         public Collection<PacketWrapper<?>> destroy() {
-            return Collections.singleton(
-                    new WrapperPlayServerDestroyEntities(entity.id())
-            );
+            return Collections.singleton(new WrapperPlayServerDestroyEntities(entity.id()));
         }
-
     }
-
 }
