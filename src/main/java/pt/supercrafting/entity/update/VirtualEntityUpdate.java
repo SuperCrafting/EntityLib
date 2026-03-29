@@ -20,40 +20,40 @@ import java.util.*;
 public interface VirtualEntityUpdate {
 
     @NotNull
-    Collection<PacketWrapper<?>> packets(@NotNull VirtualEntity entity);
+    Collection<PacketWrapper<?>> packets(final @NotNull VirtualEntity entity);
 
     @NotNull
-    static VirtualEntityUpdate animation(@NotNull WrapperPlayServerEntityAnimation.EntityAnimationType type) {
+    static VirtualEntityUpdate animation(final WrapperPlayServerEntityAnimation.@NotNull EntityAnimationType type) {
         return new AnimationUpdate(type);
     }
 
     @NotNull
-    static VirtualEntityUpdate attach(int passengerId, boolean leash) {
+    static VirtualEntityUpdate attach(final int passengerId, final boolean leash) {
         return new AttachUpdate(passengerId, leash);
     }
 
     @NotNull
-    static VirtualEntityUpdate attach(int passengerId) {
+    static VirtualEntityUpdate attach(final int passengerId) {
         return new AttachUpdate(passengerId, false);
     }
 
     @NotNull
-    static VirtualEntityUpdate collect(int pickedId, int count) {
+    static VirtualEntityUpdate collect(final int pickedId, final int count) {
         return new CollectUpdate(pickedId, count);
     }
 
     @NotNull
-    static VirtualEntityUpdate collect(int pickedId) {
+    static VirtualEntityUpdate collect(final int pickedId) {
         return new CollectUpdate(pickedId, 1);
     }
 
     @NotNull
-    static VirtualEntityUpdate equipment(@NotNull Map<@NotNull EquipmentSlot, @Nullable ItemStack> equipment) {
+    static VirtualEntityUpdate equipment(final Map<@NotNull EquipmentSlot, @Nullable ItemStack> equipment) {
         return new EquipmentUpdate(equipment);
     }
 
     @NotNull
-    static VirtualEntityUpdate equipment(@NotNull EquipmentSlot slot, @Nullable ItemStack stack) {
+    static VirtualEntityUpdate equipment(final @NotNull EquipmentSlot slot, @Nullable ItemStack stack) {
         return new EquipmentUpdate(Collections.singletonMap(
                 Objects.requireNonNull(slot, "slot cannot be null"),
                 stack
@@ -61,12 +61,12 @@ public interface VirtualEntityUpdate {
     }
 
     @NotNull
-    static VirtualEntityUpdate headRotation(float yaw) {
+    static VirtualEntityUpdate headRotation(final float yaw) {
         return new HeadRotationUpdate(yaw);
     }
 
     @NotNull
-    static VirtualEntityUpdate metadata(@NotNull Collection<@NotNull EntityData<?>> data) {
+    static VirtualEntityUpdate metadata(final Collection<@NotNull EntityData<?>> data) {
         Objects.requireNonNull(data, "data cannot be null");
         return new MetadataUpdate(new ArrayList<>(data));
     }
@@ -77,50 +77,67 @@ public interface VirtualEntityUpdate {
     }
 
     @NotNull
-    static VirtualEntityUpdate move(@NotNull Vector vector, boolean onGround) {
+    static VirtualEntityUpdate move(final @NotNull Vector vector, boolean onGround) {
         return new MoveUpdate(vector, 0, 0, onGround);
     }
 
-    static VirtualEntityUpdate move(@NotNull Vector vector) {
+    static VirtualEntityUpdate move(final @NotNull Vector vector) {
         return new MoveUpdate(vector, 0, 0, false);
     }
 
     @NotNull
-    static VirtualEntityUpdate move(@NotNull Vector vector, float yaw, float pitch, boolean onGround) {
+    static VirtualEntityUpdate move(final @NotNull Vector vector, float yaw, float pitch, boolean onGround) {
         return new MoveUpdate(vector, yaw, pitch, onGround);
     }
 
     @NotNull
-    static VirtualEntityUpdate move(@NotNull Vector vector, float yaw, float pitch) {
+    static VirtualEntityUpdate move(final @NotNull Vector vector, float yaw, float pitch) {
         return new MoveUpdate(vector, yaw, pitch, false);
     }
 
     @NotNull
-    static VirtualEntityUpdate team(@NotNull String id, @NotNull Component name, @NotNull NamedTextColor color, @Nullable Component prefix, @Nullable Component suffix, @NotNull WrapperPlayServerTeams.NameTagVisibility tagVisibility, @Nullable WrapperPlayServerTeams.CollisionRule collisionRule, @Nullable WrapperPlayServerTeams.OptionData optionData, @NotNull Collection<String> members) {
+    static VirtualEntityUpdate team(final @NotNull String id,
+                                    final @NotNull Component name,
+                                    final @NotNull NamedTextColor color,
+                                    final @Nullable Component prefix,
+                                    final @Nullable Component suffix,
+                                    final WrapperPlayServerTeams.@NotNull NameTagVisibility tagVisibility,
+                                    final WrapperPlayServerTeams.@NotNull CollisionRule collisionRule,
+                                    final WrapperPlayServerTeams.@NotNull OptionData optionData,
+                                    final Collection<@NotNull String> members) {
         return new TeamUpdate(id, name, color, prefix, suffix, tagVisibility, collisionRule, optionData, members);
     }
 
     @NotNull
-    static VirtualEntityUpdate team(@NotNull String id, @NotNull Component name, @NotNull NamedTextColor color, @Nullable Component suffix, @Nullable Component prefix, @NotNull Collection<String> members) {
-        return new TeamUpdate(id, name, color, prefix, suffix, WrapperPlayServerTeams.NameTagVisibility.ALWAYS, WrapperPlayServerTeams.CollisionRule.NEVER, WrapperPlayServerTeams.OptionData.NONE, members);
+    static VirtualEntityUpdate team(final @NotNull String id,
+                                    final @NotNull Component name,
+                                    final @NotNull NamedTextColor color,
+                                    final @Nullable Component suffix,
+                                    final @Nullable Component prefix,
+                                    final Collection<@NotNull String> members) {
+        return new TeamUpdate(id, name, color, prefix, suffix,
+                WrapperPlayServerTeams.NameTagVisibility.ALWAYS,
+                WrapperPlayServerTeams.CollisionRule.NEVER,
+                WrapperPlayServerTeams.OptionData.NONE,
+                members);
     }
 
     @NotNull
-    static VirtualEntityUpdate teleport(@NotNull Location location, boolean onGround) {
+    static VirtualEntityUpdate teleport(final @NotNull Location location, boolean onGround) {
         return new TeleportUpdate(location, onGround);
     }
 
     @NotNull
-    static VirtualEntityUpdate teleport(@NotNull Location location) {
+    static VirtualEntityUpdate teleport(final @NotNull Location location) {
         return new TeleportUpdate(location, false);
     }
 
     @NotNull
-    static VirtualEntityUpdate velocity(@NotNull Vector vector) {
+    static VirtualEntityUpdate velocity(final @NotNull Vector vector) {
         return new VelocityUpdate(vector);
     }
 
-    static @NotNull VirtualEntityUpdate playerInfo(final @NotNull WrapperPlayServerPlayerInfo.Action action) {
+    static @NotNull VirtualEntityUpdate playerInfo(final WrapperPlayServerPlayerInfo.@NotNull Action action) {
         return new PlayerInfoUpdate(action);
     }
 }
