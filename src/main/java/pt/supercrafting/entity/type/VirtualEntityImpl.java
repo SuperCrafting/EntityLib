@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import pt.supercrafting.entity.equipment.VirtualEntityEquipment;
+import pt.supercrafting.entity.interaction.VirtualEntityInteraction;
 import pt.supercrafting.entity.tick.TickingAction;
 import pt.supercrafting.entity.update.VirtualEntityUpdate;
 import pt.supercrafting.entity.visibility.VirtualEntityVisibility;
@@ -29,6 +30,7 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
     private final VirtualEntityEquipment equipment = VirtualEntityEquipment.create(this);
     private final VirtualEntityVisibility visibility = VirtualEntityVisibility.create(this);
 
+    private final Collection<@NotNull VirtualEntityInteraction> interactions;
     private final Collection<@NotNull TickingAction> actions;
 
     private final VirtualEntityPacketFactory packetFactory;
@@ -36,6 +38,7 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
     public VirtualEntityImpl(int id, @NotNull EntityType type, @NotNull Location location) {
         this.id = id;
         this.type = Objects.requireNonNull(type, "type cannot be null");
+        this.interactions = Lists.newArrayList();
         this.actions = Lists.newArrayList();
         this.location(location);
         this.packetFactory = packetFactory();
@@ -45,6 +48,21 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
     @Override
     public VirtualEntityPacketFactory packetFactory() {
         return new VirtualEntityPacketFactory.FallBack(this);
+    }
+
+    @Override
+    public @UnmodifiableView Collection<@NotNull VirtualEntityInteraction> interactions() {
+        return List.copyOf(this.interactions);
+    }
+
+    @Override
+    public void registerInteraction(final @NotNull VirtualEntityInteraction interaction) {
+        this.interactions.add(interaction);
+    }
+
+    @Override
+    public void unregisterInteraction(final @NotNull VirtualEntityInteraction interaction) {
+        this.interactions.remove(interaction);
     }
 
     @Override
