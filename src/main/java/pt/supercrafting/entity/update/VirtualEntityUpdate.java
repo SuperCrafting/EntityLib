@@ -43,7 +43,7 @@ public interface VirtualEntityUpdate {
     }
 
     @NotNull
-    static VirtualEntityUpdate collide(int pickedId) {
+    static VirtualEntityUpdate collect(int pickedId) {
         return new CollectUpdate(pickedId, 1);
     }
 
