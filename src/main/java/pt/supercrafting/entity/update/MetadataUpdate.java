@@ -20,8 +20,8 @@ record MetadataUpdate(@Nullable List<@NotNull EntityData<?>> data) implements Vi
     @Override
     public @NotNull Collection<PacketWrapper<?>> packets(@NotNull VirtualEntity entity) {
 
-        if(data == null) {
-            if(!(entity instanceof VirtualBukkitEntity<?> bukkitEntity))
+        if (data == null) {
+            if (!(entity instanceof VirtualBukkitEntity<?> bukkitEntity))
                 throw new IllegalArgumentException("Entity must be a VirtualBukkitEntity");
 
             List<@NotNull EntityData<?>> data = bukkitEntity.access(SpigotConversionUtil::getEntityMetadata);

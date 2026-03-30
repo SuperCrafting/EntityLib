@@ -41,7 +41,7 @@ public final class ReferenceRegistry<V> implements Iterable<Map.Entry<UUID, V>> 
     @UnmodifiableView
     @NotNull
     public Set<@NotNull UUID> keys() {
-        if(keysView == null)
+        if (keysView == null)
             keysView = Collections.unmodifiableSet(handle.keySet());
         return keysView;
     }
@@ -49,7 +49,7 @@ public final class ReferenceRegistry<V> implements Iterable<Map.Entry<UUID, V>> 
     @UnmodifiableView
     @NotNull
     public Collection<@NotNull V> values() {
-        if(valuesView == null)
+        if (valuesView == null)
             valuesView = Collections.unmodifiableCollection(handle.values());
         return valuesView;
     }

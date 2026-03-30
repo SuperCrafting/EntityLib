@@ -99,7 +99,7 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
             VirtualHumanEntity self = VirtualHumanEntityImpl.this;
             Bukkit.getScheduler().runTaskLater(JavaPlugin.getProvidingPlugin(this.getClass()), () -> {
                 self.update(VirtualEntityUpdate.playerInfo(WrapperPlayServerPlayerInfo.Action.REMOVE_PLAYER));
-                if(self.bodyAlign())
+                if (self.bodyAlign())
                     self.update(VirtualEntityUpdate.animation(WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_MAIN_ARM));
             }, 20L);
         }

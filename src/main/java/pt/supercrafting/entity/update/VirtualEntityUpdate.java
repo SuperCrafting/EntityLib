@@ -20,9 +20,6 @@ import java.util.*;
 public interface VirtualEntityUpdate {
 
     @NotNull
-    Collection<PacketWrapper<?>> packets(final @NotNull VirtualEntity entity);
-
-    @NotNull
     static VirtualEntityUpdate animation(final WrapperPlayServerEntityAnimation.@NotNull EntityAnimationType type) {
         return new AnimationUpdate(type);
     }
@@ -140,5 +137,8 @@ public interface VirtualEntityUpdate {
     static @NotNull VirtualEntityUpdate playerInfo(final WrapperPlayServerPlayerInfo.@NotNull Action action) {
         return new PlayerInfoUpdate(action);
     }
+
+    @NotNull
+    Collection<PacketWrapper<?>> packets(final @NotNull VirtualEntity entity);
 
 }

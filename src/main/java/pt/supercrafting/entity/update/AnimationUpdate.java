@@ -9,7 +9,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 
-record AnimationUpdate(@NotNull WrapperPlayServerEntityAnimation.EntityAnimationType type) implements VirtualEntityUpdate {
+record AnimationUpdate(
+        @NotNull WrapperPlayServerEntityAnimation.EntityAnimationType type) implements VirtualEntityUpdate {
 
     AnimationUpdate(@NotNull WrapperPlayServerEntityAnimation.EntityAnimationType type) {
         this.type = Objects.requireNonNull(type, "type cannot be null");

@@ -6,10 +6,16 @@ import org.jetbrains.annotations.Nullable;
 import pt.supercrafting.entity.type.VirtualEntity;
 import pt.supercrafting.entity.util.ReferenceRegistry;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-record VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity, @NotNull ReferenceRegistry<VirtualEntityVisibilityRule> rules, @NotNull ReferenceRegistry<VirtualEntityVisibilityListener> listeners, @NotNull Collection<Player> viewers) implements VirtualEntityVisibility {
+record VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity,
+                                   @NotNull ReferenceRegistry<VirtualEntityVisibilityRule> rules,
+                                   @NotNull ReferenceRegistry<VirtualEntityVisibilityListener> listeners,
+                                   @NotNull Collection<Player> viewers) implements VirtualEntityVisibility {
 
     public VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity) {
         this(entity, new ReferenceRegistry<>(), new ReferenceRegistry<>(), ConcurrentHashMap.newKeySet(4));
@@ -45,7 +51,7 @@ record VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity, @NotNull Refer
     @Override
     public boolean addViewer(@NotNull Player player) {
         Objects.requireNonNull(player, "player cannot be null");
-        if(viewers.add(player)) {
+        if (viewers.add(player)) {
             this.entity.update(entity.spawn(), Collections.singleton(player));
             this.entity.visibility().onShow(entity, player);
             return true;
@@ -56,7 +62,7 @@ record VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity, @NotNull Refer
     @Override
     public boolean removeViewer(@NotNull Player player) {
         Objects.requireNonNull(player, "player cannot be null");
-        if(viewers.remove(player)) {
+        if (viewers.remove(player)) {
             this.entity.update(entity.destroy(), Collections.singleton(player));
             return true;
         }

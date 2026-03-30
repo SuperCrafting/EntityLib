@@ -16,7 +16,9 @@ public sealed interface VirtualEntityVisibility extends VirtualEntityVisibilityR
     }
 
     boolean isViewer(@NotNull Player player);
+
     boolean addViewer(@NotNull Player player);
+
     boolean removeViewer(@NotNull Player player);
 
     @Unmodifiable

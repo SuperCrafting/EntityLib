@@ -9,7 +9,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
-record VirtualEntityTickingActionHolderImpl(ReferenceRegistry<VirtualEntityTickingAction> handle) implements VirtualEntityTickingActionHolder {
+record VirtualEntityTickingActionHolderImpl(
+        ReferenceRegistry<VirtualEntityTickingAction> handle) implements VirtualEntityTickingActionHolder {
 
     VirtualEntityTickingActionHolderImpl() {
         this(new ReferenceRegistry<>());

@@ -23,7 +23,7 @@ record MoveUpdate(@NotNull Vector move, float yaw, float pitch, boolean onGround
     @Override
     public @NotNull Collection<PacketWrapper<?>> packets(@NotNull VirtualEntity entity) {
 
-        if(yaw == 0 && pitch == 0)
+        if (yaw == 0 && pitch == 0)
             return Collections.singleton(
                     new WrapperPlayServerEntityRelativeMove(
                             entity.id(),

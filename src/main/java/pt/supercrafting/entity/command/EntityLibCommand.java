@@ -36,7 +36,10 @@ public final class EntityLibCommand implements CommandExecutor, TabCompleter {
             "spawn", "spawnhuman", "list", "remove", "removeall",
             "show", "hide", "tp", "animate", "equip", "skin"
     );
-
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(5))
+            .build();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final EntityLib entityLib;
     private final Plugin plugin;
 
@@ -264,12 +267,6 @@ public final class EntityLibCommand implements CommandExecutor, TabCompleter {
             }
         });
     }
-
-    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(5))
-            .build();
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * Returns the trimmed UUID string for a username, or null if not found.

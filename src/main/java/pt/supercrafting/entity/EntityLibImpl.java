@@ -43,7 +43,7 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
                     MethodType.methodType(Entity.class, Location.class, Class.class)
             );
 
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("Failed to initialize EntityLib", e);
         }
     }
@@ -52,9 +52,8 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
     private final PacketEventsAPI<?> packetEvents;
 
     private final BukkitTask task;
-    private int currentTick = 0;
-
     private final Map<Integer, VirtualEntity> entities; // Todo: use fast util Int2ObjectMap -> shade fastutil
+    private int currentTick = 0;
     private Collection<VirtualEntity> entitiesView;
 
     public EntityLibImpl(@NotNull final Plugin plugin, @NotNull PacketEventsAPI<?> packetEvents) {
@@ -74,7 +73,7 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
     @Override
     public void run() {
         for (final var entity : this.entities()) {
-            if(!entity.isValid()) {
+            if (!entity.isValid()) {
                 unregisterEntity(entity);
                 continue;
             }
@@ -92,7 +91,7 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
 
             User user = event.getUser();
             Player player = Bukkit.getPlayer(user.getUUID());
-            if(player == null || !player.isOnline())
+            if (player == null || !player.isOnline())
                 return;
 
             final var packet = new WrapperPlayClientInteractEntity(event);
@@ -116,7 +115,7 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
     @NotNull
     @Override
     public Collection<VirtualEntity> entities() {
-        if(entitiesView == null)
+        if (entitiesView == null)
             entitiesView = Collections.unmodifiableCollection(entities.values());
         return this.entitiesView;
     }
@@ -171,7 +170,7 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
 
     @NotNull
     @Override
-    public VirtualHumanEntity createHuman(@NotNull  final Location location) {
+    public VirtualHumanEntity createHuman(@NotNull final Location location) {
         final var human = VirtualHumanEntity.create(
                 SpigotReflectionUtil.generateEntityId(),
                 Objects.requireNonNull(location, "location cannot be null")

@@ -14,16 +14,27 @@ import pt.supercrafting.entity.type.VirtualEntity;
 
 import java.util.*;
 
-record EquipmentUpdate(@NotNull Map<@NotNull EquipmentSlot, @Nullable ItemStack> equipment) implements VirtualEntityUpdate {
+record EquipmentUpdate(
+        @NotNull Map<@NotNull EquipmentSlot, @Nullable ItemStack> equipment) implements VirtualEntityUpdate {
 
     EquipmentUpdate(@NotNull Map<@NotNull EquipmentSlot, @Nullable ItemStack> equipment) {
         this.equipment = Objects.requireNonNull(equipment, "equipment cannot be null");
     }
 
+    @NotNull
+    public static Equipment toEquipment(@NotNull Map.Entry<@NotNull EquipmentSlot, @Nullable ItemStack> entry) {
+        EquipmentSlot slot = entry.getKey();
+        ItemStack item = entry.getValue();
+        return new Equipment(
+                slot,
+                SpigotConversionUtil.fromBukkitItemStack(item)
+        );
+    }
+
     @Override
     public @NotNull Collection<PacketWrapper<?>> packets(@NotNull VirtualEntity entity) {
 
-        if(!supportMultiEquipment())
+        if (!supportMultiEquipment())
             return Collections.singleton(
                     new WrapperPlayServerEntityEquipment(
                             entity.id(),
@@ -44,16 +55,6 @@ record EquipmentUpdate(@NotNull Map<@NotNull EquipmentSlot, @Nullable ItemStack>
 
     public boolean supportMultiEquipment() {
         return equipment.size() > 1 && PacketEvents.getAPI().getServerManager().getVersion().isNewerThanOrEquals(ServerVersion.V_1_16);
-    }
-
-    @NotNull
-    public static Equipment toEquipment(@NotNull Map.Entry<@NotNull EquipmentSlot, @Nullable ItemStack> entry) {
-        EquipmentSlot slot = entry.getKey();
-        ItemStack item = entry.getValue();
-        return new Equipment(
-                slot,
-                SpigotConversionUtil.fromBukkitItemStack(item)
-        );
     }
 
     @NotNull

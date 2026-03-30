@@ -19,18 +19,15 @@ import java.util.Objects;
 
 sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEntityImpl, VirtualHumanEntityImpl {
 
+    protected final VirtualEntityPacketFactory packetFactory;
     private final int id;
     private final EntityType type;
-    private boolean valid = true;
-
-    private Location location;
     private final VirtualEntityEquipment equipment = VirtualEntityEquipment.create(this);
     private final VirtualEntityVisibility visibility = VirtualEntityVisibility.create(this);
-
     private final VirtualEntityInteractionHolder interactions;
     private final VirtualEntityTickingActionHolder tickingActions;
-
-    protected final VirtualEntityPacketFactory packetFactory;
+    private boolean valid = true;
+    private Location location;
 
     public VirtualEntityImpl(int id, @NotNull EntityType type, @NotNull Location location) {
         this.id = id;

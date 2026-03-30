@@ -12,7 +12,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
-record VirtualEntityInteractionHolderImpl(ReferenceRegistry<VirtualEntityInteraction> handle) implements VirtualEntityInteractionHolder {
+record VirtualEntityInteractionHolderImpl(
+        ReferenceRegistry<VirtualEntityInteraction> handle) implements VirtualEntityInteractionHolder {
 
     VirtualEntityInteractionHolderImpl() {
         this(new ReferenceRegistry<>());
