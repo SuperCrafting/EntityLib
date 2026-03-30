@@ -16,7 +16,7 @@ import pt.supercrafting.entity.update.VirtualEntityUpdate;
 
 import java.util.*;
 
-public interface VirtualEntityPacketFactory {
+interface VirtualEntityPacketFactory {
 
     Collection<PacketWrapper<?>> spawn();
     Collection<PacketWrapper<?>> destroy();

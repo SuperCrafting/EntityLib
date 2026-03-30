@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public record TeamUpdate(@NotNull String id, @NotNull Component name, @NotNull NamedTextColor color, @Nullable Component prefix, @Nullable Component suffix, @NotNull WrapperPlayServerTeams.NameTagVisibility tagVisibility, @NotNull WrapperPlayServerTeams.CollisionRule collisionRule, @Nullable WrapperPlayServerTeams.OptionData optionData, @NotNull Collection<String> members) implements VirtualEntityUpdate {
+record TeamUpdate(@NotNull String id, @NotNull Component name, @NotNull NamedTextColor color, @Nullable Component prefix, @Nullable Component suffix, @NotNull WrapperPlayServerTeams.NameTagVisibility tagVisibility, @NotNull WrapperPlayServerTeams.CollisionRule collisionRule, @Nullable WrapperPlayServerTeams.OptionData optionData, @NotNull Collection<String> members) implements VirtualEntityUpdate {
 
     public TeamUpdate(@NotNull String id, @NotNull Component name, @NotNull NamedTextColor color, @Nullable Component prefix, @Nullable Component suffix, @NotNull WrapperPlayServerTeams.NameTagVisibility tagVisibility, @NotNull WrapperPlayServerTeams.CollisionRule collisionRule, @Nullable WrapperPlayServerTeams.OptionData optionData, @NotNull Collection<String> members) {
         this.id = Objects.requireNonNull(id, "id cannot be null");

@@ -9,20 +9,13 @@ import pt.supercrafting.entity.type.VirtualHumanEntity;
 import java.util.Collection;
 import java.util.Collections;
 
-public final class PlayerInfoUpdate implements VirtualEntityUpdate {
-
-    private final WrapperPlayServerPlayerInfo.Action action;
-
-    public PlayerInfoUpdate(final WrapperPlayServerPlayerInfo.Action action) {
-        this.action = action;
-    }
+record PlayerInfoUpdate(WrapperPlayServerPlayerInfo.Action action) implements VirtualEntityUpdate {
 
     @Override
     public @NotNull Collection<PacketWrapper<?>> packets(@NotNull final VirtualEntity entity) {
-        if (!(entity instanceof final VirtualHumanEntity human)) {
+        if (!(entity instanceof final VirtualHumanEntity human))
             return Collections.emptyList();
-        }
-
         return Collections.singleton(new WrapperPlayServerPlayerInfo(this.action, human.toPlayerData()));
     }
+
 }

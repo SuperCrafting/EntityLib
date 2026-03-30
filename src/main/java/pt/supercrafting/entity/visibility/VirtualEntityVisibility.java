@@ -9,7 +9,7 @@ import pt.supercrafting.entity.type.VirtualEntity;
 import java.util.Collection;
 import java.util.UUID;
 
-public sealed interface VirtualEntityVisibility extends VirtualEntityVisibilityRule, Runnable permits VirtualEntityVisibilityImpl {
+public sealed interface VirtualEntityVisibility extends VirtualEntityVisibilityRule, VirtualEntityVisibilityListener, Runnable permits VirtualEntityVisibilityImpl {
 
     static VirtualEntityVisibility create(@NotNull VirtualEntity entity) {
         return new VirtualEntityVisibilityImpl(entity);
@@ -27,5 +27,11 @@ public sealed interface VirtualEntityVisibility extends VirtualEntityVisibilityR
 
     @Nullable
     VirtualEntityVisibilityRule removeRule(@NotNull UUID ruleId);
+
+    @NotNull
+    UUID addListener(@NotNull VirtualEntityVisibilityListener listener);
+
+    @Nullable
+    VirtualEntityVisibilityListener removeListener(@NotNull UUID listenerId);
 
 }

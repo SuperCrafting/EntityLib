@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public final class VirtualBukkitEntityImpl<E extends Entity> extends VirtualEntityImpl implements VirtualBukkitEntity<E> {
+final class VirtualBukkitEntityImpl<E extends Entity> extends VirtualEntityImpl implements VirtualBukkitEntity<E> {
 
     private final E handle;
 
@@ -20,7 +20,7 @@ public final class VirtualBukkitEntityImpl<E extends Entity> extends VirtualEnti
     }
 
     @Override
-    public @NotNull VirtualEntityPacketFactory packetFactory() {
+    protected @NotNull VirtualEntityPacketFactory packetFactory() {
         return new PacketFactory();
     }
 

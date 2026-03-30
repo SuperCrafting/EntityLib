@@ -18,6 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import pt.supercrafting.entity.equipment.VirtualEntityEquipment;
 import pt.supercrafting.entity.update.VirtualEntityUpdate;
+import pt.supercrafting.entity.visibility.VirtualEntityVisibilityListener;
 
 import java.util.*;
 
@@ -36,19 +37,12 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
                 "VH_" + id,
                 new ArrayList<>()
         ));
+        visibility().addListener(new VisibilityListener());
     }
 
     @Override
     public @NotNull VirtualEntityPacketFactory packetFactory() {
         return new PacketFactory();
-    }
-
-    @Override
-    public void onSpawn(final Player player) {
-        Bukkit.getScheduler().runTaskLater(JavaPlugin.getProvidingPlugin(this.getClass()), () -> {
-            this.update(VirtualEntityUpdate.playerInfo(WrapperPlayServerPlayerInfo.Action.REMOVE_PLAYER));
-            this.update(VirtualEntityUpdate.animation(WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_MAIN_ARM));
-        }, 20L);
     }
 
     @Override
@@ -98,6 +92,20 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
         );
     }
 
+    private class VisibilityListener implements VirtualEntityVisibilityListener {
+
+        @Override
+        public void onShow(@NotNull VirtualEntity entity, @NotNull Player player) {
+            VirtualHumanEntity self = VirtualHumanEntityImpl.this;
+            Bukkit.getScheduler().runTaskLater(JavaPlugin.getProvidingPlugin(this.getClass()), () -> {
+                self.update(VirtualEntityUpdate.playerInfo(WrapperPlayServerPlayerInfo.Action.REMOVE_PLAYER));
+                if(self.bodyAlign())
+                    self.update(VirtualEntityUpdate.animation(WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_MAIN_ARM));
+            }, 20L);
+        }
+
+    }
+
     private final class PacketFactory implements VirtualEntityPacketFactory {
 
         private static final EntityData<?> SKIN_FLAG = new EntityData<>(10, EntityDataTypes.BYTE, (byte) 127);
@@ -136,9 +144,7 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
                     Collections.singleton(profile.getName())
             ).packets(human));
 
-            final var data = new ArrayList<EntityData<?>>();
-            data.add(new EntityData<>(10, EntityDataTypes.BYTE, (byte) (0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40)));
-            final var metadataPacket = new WrapperPlayServerEntityMetadata(human.id(), data);
+            final var metadataPacket = new WrapperPlayServerEntityMetadata(human.id(), new ArrayList<>(dataWatcher()));
             packets.add(metadataPacket);
 
             packets.add(new WrapperPlayServerEntityHeadLook(human.id(), location.getYaw()));

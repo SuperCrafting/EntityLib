@@ -17,7 +17,7 @@ import pt.supercrafting.entity.type.VirtualEntity;
 
 import java.util.*;
 
-public interface VirtualEntityUpdate {
+public sealed interface VirtualEntityUpdate permits AnimationUpdate, AttachUpdate, CollectUpdate, EquipmentUpdate, HeadRotationUpdate, MetadataUpdate, MoveUpdate, PlayerInfoUpdate, TeamUpdate, TeleportUpdate, VelocityUpdate, VirtualEntitySpawn {
 
     @NotNull
     Collection<PacketWrapper<?>> packets(final @NotNull VirtualEntity entity);
@@ -140,4 +140,5 @@ public interface VirtualEntityUpdate {
     static @NotNull VirtualEntityUpdate playerInfo(final WrapperPlayServerPlayerInfo.@NotNull Action action) {
         return new PlayerInfoUpdate(action);
     }
+
 }

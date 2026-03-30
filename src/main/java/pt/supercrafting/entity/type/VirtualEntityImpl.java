@@ -11,8 +11,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 import pt.supercrafting.entity.equipment.VirtualEntityEquipment;
-import pt.supercrafting.entity.interaction.VirtualEntityInteraction;
-import pt.supercrafting.entity.tick.TickingAction;
+import pt.supercrafting.entity.interaction.VirtualEntityInteractionHolder;
+import pt.supercrafting.entity.tick.VirtualEntityTickingAction;
+import pt.supercrafting.entity.tick.VirtualEntityTickingActionHolder;
+import pt.supercrafting.entity.update.VirtualEntitySpawn;
 import pt.supercrafting.entity.update.VirtualEntityUpdate;
 import pt.supercrafting.entity.visibility.VirtualEntityVisibility;
 
@@ -30,59 +32,48 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
     private final VirtualEntityEquipment equipment = VirtualEntityEquipment.create(this);
     private final VirtualEntityVisibility visibility = VirtualEntityVisibility.create(this);
 
-    private final Collection<@NotNull VirtualEntityInteraction> interactions;
-    private final Collection<@NotNull TickingAction> actions;
+    private final VirtualEntityInteractionHolder interactions;
+    private final VirtualEntityTickingActionHolder tickingActions;
 
-    private final VirtualEntityPacketFactory packetFactory;
+    protected final VirtualEntityPacketFactory packetFactory;
 
     public VirtualEntityImpl(int id, @NotNull EntityType type, @NotNull Location location) {
         this.id = id;
         this.type = Objects.requireNonNull(type, "type cannot be null");
-        this.interactions = Lists.newArrayList();
-        this.actions = Lists.newArrayList();
+        this.interactions = VirtualEntityInteractionHolder.create();
+        this.tickingActions = VirtualEntityTickingActionHolder.create();
         this.location(location);
         this.packetFactory = packetFactory();
     }
 
     @NotNull
-    @Override
-    public VirtualEntityPacketFactory packetFactory() {
+    protected VirtualEntityPacketFactory packetFactory() {
         return new VirtualEntityPacketFactory.FallBack(this);
     }
 
     @Override
-    public @UnmodifiableView Collection<@NotNull VirtualEntityInteraction> interactions() {
-        return List.copyOf(this.interactions);
+    public @NotNull VirtualEntitySpawn spawn() {
+        return _ -> packetFactory.spawn();
     }
 
     @Override
-    public void registerInteraction(final @NotNull VirtualEntityInteraction interaction) {
-        this.interactions.add(interaction);
+    public @NotNull VirtualEntitySpawn destroy() {
+        return _ -> packetFactory.destroy();
     }
 
     @Override
-    public void unregisterInteraction(final @NotNull VirtualEntityInteraction interaction) {
-        this.interactions.remove(interaction);
+    public @NotNull VirtualEntityInteractionHolder interactions() {
+        return interactions;
+    }
+
+    @Override
+    public @NotNull VirtualEntityTickingActionHolder tickingActions() {
+        return tickingActions;
     }
 
     @Override
     public int id() {
         return id;
-    }
-
-    @Override
-    public @UnmodifiableView Collection<@NotNull TickingAction> tickingActions() {
-        return List.copyOf(this.actions);
-    }
-
-    @Override
-    public void registerTickingAction(final @NotNull TickingAction action) {
-        this.actions.add(action);
-    }
-
-    @Override
-    public void unregisterTickingAction(final @NotNull TickingAction action) {
-        this.actions.remove(action);
     }
 
     @Override
@@ -101,6 +92,7 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
             return;
 
         valid = false;
+        update(destroy());
     }
 
     @Override
