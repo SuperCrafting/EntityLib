@@ -130,7 +130,6 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
         for (PacketWrapper<?> packet : packets) {
             for (Player viewer : viewers) {
                 PacketEvents.getAPI().getPlayerManager().sendPacket(viewer, packet);
-                viewer.sendMessage("Packet sent: " + packet.getClass().getSimpleName());
             }
         }
     }
