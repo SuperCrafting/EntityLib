@@ -7,9 +7,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.*;
 import pt.supercrafting.entity.equipment.VirtualEntityEquipment;
 import pt.supercrafting.entity.interaction.VirtualEntityInteractionHolder;
-import pt.supercrafting.entity.tick.VirtualEntityTickingAction;
 import pt.supercrafting.entity.tick.VirtualEntityTickingActionHolder;
-import pt.supercrafting.entity.update.VirtualEntitySpawn;
 import pt.supercrafting.entity.update.VirtualEntityUpdate;
 import pt.supercrafting.entity.visibility.VirtualEntityVisibility;
 
@@ -26,10 +24,10 @@ public sealed interface VirtualEntity permits VirtualBukkitEntity, VirtualEntity
     int id();
 
     @NotNull
-    VirtualEntitySpawn spawn();
+    VirtualEntityUpdate spawn();
 
     @NotNull
-    VirtualEntitySpawn destroy();
+    VirtualEntityUpdate destroy();
 
     @NotNull
     VirtualEntityInteractionHolder interactions();

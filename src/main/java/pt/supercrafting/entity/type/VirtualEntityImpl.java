@@ -3,23 +3,18 @@ package pt.supercrafting.entity.type;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityType;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
-import com.google.common.collect.Lists;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 import pt.supercrafting.entity.equipment.VirtualEntityEquipment;
 import pt.supercrafting.entity.interaction.VirtualEntityInteractionHolder;
-import pt.supercrafting.entity.tick.VirtualEntityTickingAction;
 import pt.supercrafting.entity.tick.VirtualEntityTickingActionHolder;
-import pt.supercrafting.entity.update.VirtualEntitySpawn;
 import pt.supercrafting.entity.update.VirtualEntityUpdate;
 import pt.supercrafting.entity.visibility.VirtualEntityVisibility;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEntityImpl, VirtualHumanEntityImpl {
@@ -52,12 +47,12 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
     }
 
     @Override
-    public @NotNull VirtualEntitySpawn spawn() {
+    public @NotNull VirtualEntityUpdate spawn() {
         return _ -> packetFactory.spawn();
     }
 
     @Override
-    public @NotNull VirtualEntitySpawn destroy() {
+    public @NotNull VirtualEntityUpdate destroy() {
         return _ -> packetFactory.destroy();
     }
 
