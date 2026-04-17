@@ -156,6 +156,7 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
         return entity;
     }
 
+    @SuppressWarnings("unchecked")
     @NotNull
     @Override
     public <E extends Entity> VirtualBukkitEntity<E> createBukkit(@NotNull Location location, final @NotNull Class<E> type) {
