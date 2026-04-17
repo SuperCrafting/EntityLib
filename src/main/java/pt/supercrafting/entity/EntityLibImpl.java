@@ -37,10 +37,11 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
 
             World firstWorld = Bukkit.getWorlds().getFirst();
             // Search for CraftWorld#createEntity(Location, Class<? extends Entity>)
+
             CREATE_ENTITY_METHOD = MethodHandles.lookup().findVirtual(
                     firstWorld.getClass(),
                     "createEntity",
-                    MethodType.methodType(Entity.class, Location.class, Class.class)
+                    MethodType.methodType(SpigotReflectionUtil.NMS_ENTITY_CLASS, Location.class, Class.class)
             );
 
         } catch (Exception e) {
@@ -159,7 +160,8 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
     @Override
     public <E extends Entity> VirtualBukkitEntity<E> createBukkit(@NotNull Location location, final @NotNull Class<E> type) {
         try {
-            E bukkit = (E) CREATE_ENTITY_METHOD.invoke(location.getWorld(), location, type);
+            Object nms = CREATE_ENTITY_METHOD.invoke(location.getWorld(), location, type);
+            E bukkit = (E) SpigotReflectionUtil.getBukkitEntity(nms);
             VirtualBukkitEntity<E> entity = VirtualBukkitEntity.create(bukkit);
             registerEntity(entity);
             return entity;
