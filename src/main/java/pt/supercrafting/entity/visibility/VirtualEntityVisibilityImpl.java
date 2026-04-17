@@ -1,5 +1,6 @@
 package pt.supercrafting.entity.visibility;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +35,7 @@ record VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity,
             return;
         }
 
-        for (final var player : this.viewers) {
+        for (final var player : Bukkit.getOnlinePlayers()) {
             if (!this.canSee(this.entity, player) && this.isViewer(player)) {
                 this.removeViewer(player);
             } else if (this.canSee(this.entity, player) && !this.isViewer(player)) {
