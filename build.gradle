@@ -8,7 +8,7 @@ group = 'pt.supercrafting'
 version = '1.0-SNAPSHOT'
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 repositories {
@@ -31,30 +31,36 @@ repositories {
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT'
-    implementation("com.github.retrooper:packetevents-spigot:2.11.2")
+    implementation("com.github.retrooper:packetevents-spigot:2.12.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.3")
 }
 
 shadowJar {
     archiveClassifier.set('')
-    relocate 'com.github.retrooper.packetevents', 'pt.supercrafting.entity.libs.packetevents'
-    relocate 'io.github.retrooper.packetevents', 'pt.supercrafting.entity.libs.packetevents'
+    //relocate 'com.github.retrooper.packetevents', 'pt.supercrafting.entity.libs.packetevents'
+    //relocate 'io.github.retrooper.packetevents', 'pt.supercrafting.entity.libs.packetevents'
     relocate 'com.fasterxml.jackson', 'pt.supercrafting.entity.libs.jackson'
-    minimize()
 }
 
 jar {
     enabled = false
 }
 
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            from components.java
-            artifact tasks.shadowJar
+            artifact(tasks.shadowJar)
+
+            groupId = 'pt.supercrafting'
+            artifactId = 'EntityLib'
+            version = '1.0-SNAPSHOT'
         }
     }
-}
 
+    repositories {
+        mavenLocal()
+    }
+}
 
 tasks.build.dependsOn tasks.shadowJar

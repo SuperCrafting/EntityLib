@@ -24,7 +24,7 @@ import pt.supercrafting.entity.type.VirtualHumanEntity;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,15 +34,17 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
 
     static {
         try {
+            World firstWorld = Bukkit.getWorlds().get(0);
 
-            World firstWorld = Bukkit.getWorlds().getFirst();
-            // Search for CraftWorld#createEntity(Location, Class<? extends Entity>)
-
-            CREATE_ENTITY_METHOD = MethodHandles.lookup().findVirtual(
-                    firstWorld.getClass(),
+            Method method = firstWorld.getClass().getDeclaredMethod(
                     "createEntity",
-                    MethodType.methodType(SpigotReflectionUtil.NMS_ENTITY_CLASS, Location.class, Class.class)
+                    Location.class,
+                    Class.class
             );
+
+            method.setAccessible(true);
+
+            CREATE_ENTITY_METHOD = MethodHandles.lookup().unreflect(method);
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize EntityLib", e);

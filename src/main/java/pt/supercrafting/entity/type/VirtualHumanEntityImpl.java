@@ -33,7 +33,7 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
     public VirtualHumanEntityImpl(int id, @NotNull Location location) {
         super(id, EntityTypes.PLAYER, location);
         profile(new UserProfile(
-                location.getWorld().getUID(),
+                UUID.randomUUID(),
                 "VH_" + id,
                 new ArrayList<>()
         ));

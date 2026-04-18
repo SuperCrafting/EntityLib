@@ -45,12 +45,12 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
 
     @Override
     public @NotNull VirtualEntityUpdate spawn() {
-        return _ -> packetFactory.spawn();
+        return unused -> packetFactory.spawn();
     }
 
     @Override
     public @NotNull VirtualEntityUpdate destroy() {
-        return _ -> packetFactory.destroy();
+        return unused -> packetFactory.destroy();
     }
 
     @Override
