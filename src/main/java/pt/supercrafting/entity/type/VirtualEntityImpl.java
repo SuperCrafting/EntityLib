@@ -22,7 +22,7 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
     protected final VirtualEntityPacketFactory packetFactory;
     private final int id;
     private final EntityType type;
-    private final VirtualEntityEquipment equipment = VirtualEntityEquipment.create(this);
+    private final VirtualEntityEquipment equipment;
     private final VirtualEntityVisibility visibility = VirtualEntityVisibility.create(this);
     private final VirtualEntityInteractionHolder interactions;
     private final VirtualEntityTickingActionHolder tickingActions;
@@ -32,10 +32,15 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
     public VirtualEntityImpl(int id, @NotNull EntityType type, @NotNull Location location) {
         this.id = id;
         this.type = Objects.requireNonNull(type, "type cannot be null");
+        this.equipment = createEquipment();
         this.interactions = VirtualEntityInteractionHolder.create();
         this.tickingActions = VirtualEntityTickingActionHolder.create();
         this.location(location);
         this.packetFactory = packetFactory();
+    }
+
+    protected VirtualEntityEquipment createEquipment() {
+        return VirtualEntityEquipment.create();
     }
 
     @NotNull
