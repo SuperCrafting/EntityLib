@@ -149,10 +149,6 @@ final class VirtualBukkitEntityImpl<E extends Entity> extends VirtualEntityImpl 
             return map;
         }
 
-        private Optional<ItemStack> optional(Function<EntityEquipment, ItemStack> function) {
-            return Optional.ofNullable(function.apply(handle));
-        }
-
     }
 
 }
