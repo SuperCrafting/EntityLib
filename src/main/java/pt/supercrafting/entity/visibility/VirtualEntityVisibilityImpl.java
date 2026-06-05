@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 record VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity,
                                    @NotNull ReferenceRegistry<VirtualEntityVisibilityRule> rules,
+                                   @Nullable UUID fallBackRule,
                                    @NotNull ReferenceRegistry<VirtualEntityVisibilityListener> listeners,
                                    @NotNull Collection<Player> viewers) implements VirtualEntityVisibility {
 
@@ -23,10 +24,16 @@ record VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity,
     }
 
     public VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity, @NotNull ReferenceRegistry<VirtualEntityVisibilityRule> rules, @NotNull ReferenceRegistry<VirtualEntityVisibilityListener> listeners, @NotNull Collection<Player> viewers) {
-        this.entity = Objects.requireNonNull(entity, "entity cannot be null");
-        this.rules = Objects.requireNonNull(rules, "rules cannot be null");
-        this.listeners = Objects.requireNonNull(listeners, "listeners cannot be null");
-        this.viewers = Objects.requireNonNull(viewers, "viewers cannot be null");
+        this(
+                Objects.requireNonNull(entity, "entity cannot be null"),
+                Objects.requireNonNull(rules, "rules cannot be null"),
+                UUID.randomUUID(),
+                Objects.requireNonNull(listeners, "listeners cannot be null"),
+                Objects.requireNonNull(viewers, "viewers cannot be null"));
+    }
+
+    VirtualEntityVisibilityImpl {
+        rules.register(VirtualEntityVisibilityRule.always(), fallBackRule);
     }
 
     @Override

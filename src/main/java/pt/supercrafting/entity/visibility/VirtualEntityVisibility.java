@@ -15,6 +15,9 @@ public sealed interface VirtualEntityVisibility extends VirtualEntityVisibilityR
         return new VirtualEntityVisibilityImpl(entity);
     }
 
+    @Nullable
+    UUID fallBackRule();
+
     boolean isViewer(@NotNull Player player);
 
     boolean addViewer(@NotNull Player player);

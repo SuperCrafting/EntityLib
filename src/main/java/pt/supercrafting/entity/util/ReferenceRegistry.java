@@ -18,11 +18,17 @@ public final class ReferenceRegistry<V> implements Iterable<Map.Entry<UUID, V>> 
     public ReferenceRegistry() {
     }
 
-    public UUID register(@NotNull V value) {
+    @ApiStatus.Internal
+    @NotNull
+    public UUID register(@NotNull V value, UUID definedId) {
         Objects.requireNonNull(value, "Value cannot be null");
-        UUID id = UUID.randomUUID();
-        handle.put(id, value);
-        return id;
+        Objects.requireNonNull(definedId, "ID cannot be null");
+        handle.put(definedId, value);
+        return definedId;
+    }
+
+    public UUID register(@NotNull V value) {
+        return register(value, UUID.randomUUID());
     }
 
     @Nullable
