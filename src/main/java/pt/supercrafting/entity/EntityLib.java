@@ -1,5 +1,6 @@
 package pt.supercrafting.entity;
 
+import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.PacketEventsAPI;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityType;
 import org.bukkit.Location;
@@ -16,6 +17,11 @@ import java.util.Objects;
 import java.util.Optional;
 
 public sealed interface EntityLib permits EntityLibImpl {
+
+    @NotNull
+    static EntityLib create(@NotNull final Plugin plugin) {
+        return create(plugin, PacketEvents.getAPI());
+    }
 
     @NotNull
     static EntityLib create(@NotNull Plugin plugin, @NotNull PacketEventsAPI<?> packetEvents) {

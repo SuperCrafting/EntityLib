@@ -51,7 +51,6 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
         }
     }
 
-    private final Plugin plugin;
     private final PacketEventsAPI<?> packetEvents;
 
     private final BukkitTask task;
@@ -60,7 +59,7 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
     private Collection<VirtualEntity> entitiesView;
 
     public EntityLibImpl(@NotNull final Plugin plugin, @NotNull PacketEventsAPI<?> packetEvents) {
-        this.plugin = Objects.requireNonNull(plugin, "plugin cannot be null");
+        Objects.requireNonNull(plugin, "plugin cannot be null");
         this.packetEvents = Objects.requireNonNull(packetEvents, "packetEvents cannot be null");
         this.entities = new ConcurrentHashMap<>();
 
