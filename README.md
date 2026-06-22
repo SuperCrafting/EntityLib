@@ -1,6 +1,6 @@
 # EntityLib
 
-EntityLib is a Spigot/Paper library for creating and managing **virtual entities** on a Minecraft server. These entities exist only at the protocol level — they are visible to players through direct packet sending, without ever instantiating a real Bukkit entity.
+EntityLib is a Spigot/Paper library for creating and managing **virtual entities** on a Minecraft server. These entities exist only at the protocol level — they are visible to players through direct packet sending, without ever being added to the world.
 
 ## Key Features
 
