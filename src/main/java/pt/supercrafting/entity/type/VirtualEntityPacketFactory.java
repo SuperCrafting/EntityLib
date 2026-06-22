@@ -19,6 +19,7 @@ import java.util.*;
 interface VirtualEntityPacketFactory {
 
     Collection<PacketWrapper<?>> spawn();
+
     Collection<PacketWrapper<?>> destroy();
 
     Collection<EntityData<?>> dataWatcher();
@@ -67,17 +68,17 @@ interface VirtualEntityPacketFactory {
                 ));
             }
 
-            if(living)
+            if (living)
                 packets.addAll(VirtualEntityUpdate.headRotation(location.getYaw()).packets(entity));
 
-            if((living || item) && !dataWatcher.isEmpty())
+            if ((living || item) && !dataWatcher.isEmpty())
                 packets.add(new WrapperPlayServerEntityMetadata(
                         entity.id(),
                         dataWatcher
                 ));
 
             VirtualEntityEquipment equipment = entity.equipment();
-            if(!equipment.isEmpty())
+            if (!equipment.isEmpty())
                 packets.addAll(equipment.toUpdate().packets(entity));
 
             return packets;
@@ -85,11 +86,7 @@ interface VirtualEntityPacketFactory {
 
         @Override
         public Collection<PacketWrapper<?>> destroy() {
-            return Collections.singleton(
-                    new WrapperPlayServerDestroyEntities(entity.id())
-            );
+            return Collections.singleton(new WrapperPlayServerDestroyEntities(entity.id()));
         }
-
     }
-
 }

@@ -6,10 +6,11 @@ import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pt.supercrafting.entity.equipment.VirtualEntityEquipment;
+import pt.supercrafting.entity.interaction.VirtualEntityInteractionHolder;
+import pt.supercrafting.entity.tick.VirtualEntityTickingActionHolder;
 import pt.supercrafting.entity.update.VirtualEntityUpdate;
 import pt.supercrafting.entity.visibility.VirtualEntityVisibility;
 
@@ -18,27 +19,53 @@ import java.util.Objects;
 
 sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEntityImpl, VirtualHumanEntityImpl {
 
+    protected final VirtualEntityPacketFactory packetFactory;
     private final int id;
     private final EntityType type;
-    private boolean valid = true;
-
-    private Location location;
-    private final VirtualEntityEquipment equipment = VirtualEntityEquipment.create(this);
+    private final VirtualEntityEquipment equipment;
     private final VirtualEntityVisibility visibility = VirtualEntityVisibility.create(this);
-
-    private final VirtualEntityPacketFactory packetFactory;
+    private final VirtualEntityInteractionHolder interactions;
+    private final VirtualEntityTickingActionHolder tickingActions;
+    private boolean valid = true;
+    private Location location;
 
     public VirtualEntityImpl(int id, @NotNull EntityType type, @NotNull Location location) {
         this.id = id;
         this.type = Objects.requireNonNull(type, "type cannot be null");
+        this.equipment = createEquipment();
+        this.interactions = VirtualEntityInteractionHolder.create();
+        this.tickingActions = VirtualEntityTickingActionHolder.create();
         this.location(location);
         this.packetFactory = packetFactory();
     }
 
+    protected VirtualEntityEquipment createEquipment() {
+        return VirtualEntityEquipment.create();
+    }
+
     @NotNull
-    @ApiStatus.Internal
     protected VirtualEntityPacketFactory packetFactory() {
         return new VirtualEntityPacketFactory.FallBack(this);
+    }
+
+    @Override
+    public @NotNull VirtualEntityUpdate spawn() {
+        return unused -> packetFactory.spawn();
+    }
+
+    @Override
+    public @NotNull VirtualEntityUpdate destroy() {
+        return unused -> packetFactory.destroy();
+    }
+
+    @Override
+    public @NotNull VirtualEntityInteractionHolder interactions() {
+        return interactions;
+    }
+
+    @Override
+    public @NotNull VirtualEntityTickingActionHolder tickingActions() {
+        return tickingActions;
     }
 
     @Override
@@ -58,10 +85,11 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
 
     @Override
     public void remove() {
-        if(!valid)
+        if (!valid)
             return;
 
         valid = false;
+        update(destroy());
     }
 
     @Override
@@ -91,19 +119,24 @@ sealed class VirtualEntityImpl implements VirtualEntity permits VirtualBukkitEnt
 
     @Override
     public void update(@NotNull VirtualEntityUpdate update, @Nullable Collection<Player> viewers) {
-        if(viewers == null)
+        if (viewers == null) {
             viewers = this.visibility.viewers();
+        }
 
-        if(viewers.isEmpty())
+        if (viewers.isEmpty()) {
             return;
+        }
 
         Collection<PacketWrapper<?>> packets = update.packets(this);
-        if(packets.isEmpty())
+        if (packets.isEmpty()) {
             return;
+        }
 
-        for (PacketWrapper<?> packet : packets)
-            for (Player viewer : viewers)
+        for (PacketWrapper<?> packet : packets) {
+            for (Player viewer : viewers) {
                 PacketEvents.getAPI().getPlayerManager().sendPacket(viewer, packet);
+            }
+        }
     }
 
 }

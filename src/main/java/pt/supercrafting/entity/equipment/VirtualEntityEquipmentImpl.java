@@ -11,26 +11,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-record VirtualEntityEquipmentImpl(@NotNull VirtualEntity entity, @NotNull Map<@NotNull EquipmentSlot, @Nullable ItemStack> handle) implements VirtualEntityEquipment {
+record VirtualEntityEquipmentImpl(@NotNull Map<@NotNull EquipmentSlot, @Nullable ItemStack> handle) implements VirtualEntityEquipment {
 
     private static final int SIZE = EquipmentSlot.values().length;
 
-    public VirtualEntityEquipmentImpl(@NotNull VirtualEntity entity) {
-        this(entity, new HashMap<>(SIZE));
+    public VirtualEntityEquipmentImpl() {
+        this(new HashMap<>(SIZE));
     }
 
-    VirtualEntityEquipmentImpl(@NotNull VirtualEntity entity, @NotNull Map<@NotNull EquipmentSlot, @Nullable ItemStack> handle) {
-        this.entity = Objects.requireNonNull(entity, "entity cannot be null");
+    VirtualEntityEquipmentImpl(@NotNull Map<@NotNull EquipmentSlot, @Nullable ItemStack> handle) {
         this.handle = Objects.requireNonNull(handle, "handle cannot be null");
     }
 
     @Override
     public boolean isEmpty() {
-        if(this.handle.isEmpty())
+        if (this.handle.isEmpty())
             return true;
 
         for (@Nullable ItemStack item : this.handle.values())
-            if(item != null)
+            if (item != null)
                 return false;
         return true;
     }
@@ -55,16 +54,11 @@ record VirtualEntityEquipmentImpl(@NotNull VirtualEntity entity, @NotNull Map<@N
     @Override
     public VirtualEntityUpdate set(@NotNull EquipmentSlot slot, @Nullable ItemStack item) {
         Objects.requireNonNull(slot, "slot cannot be null");
-        if(item != null)
+        if (item != null)
             handle.put(slot, item);
         else
             handle.remove(slot);
         return VirtualEntityUpdate.equipment(slot, item);
-    }
-
-    @Override
-    public @NotNull VirtualEntityUpdate unset(@NotNull EquipmentSlot slot) {
-        return set(slot, null);
     }
 
     @Override

@@ -7,17 +7,22 @@ import com.github.retrooper.packetevents.protocol.player.GameMode;
 import com.github.retrooper.packetevents.protocol.player.TextureProperty;
 import com.github.retrooper.packetevents.protocol.player.UserProfile;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfo;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnPlayer;
+import com.github.retrooper.packetevents.wrapper.play.server.*;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import pt.supercrafting.entity.equipment.VirtualEntityEquipment;
+import pt.supercrafting.entity.update.VirtualEntityUpdate;
+import pt.supercrafting.entity.visibility.VirtualEntityVisibilityListener;
 
 import java.util.*;
+
+import static net.kyori.adventure.text.Component.empty;
 
 final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualHumanEntity {
 
@@ -28,14 +33,15 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
     public VirtualHumanEntityImpl(int id, @NotNull Location location) {
         super(id, EntityTypes.PLAYER, location);
         profile(new UserProfile(
-                location.getWorld().getUID(),
+                UUID.randomUUID(),
                 "VH_" + id,
                 new ArrayList<>()
         ));
+        visibility().addListener(new VisibilityListener());
     }
 
     @Override
-    protected @NotNull VirtualEntityPacketFactory packetFactory() {
+    public @NotNull VirtualEntityPacketFactory packetFactory() {
         return new PacketFactory();
     }
 
@@ -76,13 +82,28 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
         this.profile(skinnedProfile);
     }
 
+    @Override
     public WrapperPlayServerPlayerInfo.PlayerData toPlayerData() {
         return new WrapperPlayServerPlayerInfo.PlayerData(
-            tabName,
-            profile,
-            GameMode.CREATIVE,
-            1
+                tabName,
+                profile,
+                GameMode.CREATIVE,
+                1
         );
+    }
+
+    private class VisibilityListener implements VirtualEntityVisibilityListener {
+
+        @Override
+        public void onShow(@NotNull VirtualEntity entity, @NotNull Player player) {
+            VirtualHumanEntity self = VirtualHumanEntityImpl.this;
+            Bukkit.getScheduler().runTaskLater(JavaPlugin.getProvidingPlugin(this.getClass()), () -> {
+                self.update(VirtualEntityUpdate.playerInfo(WrapperPlayServerPlayerInfo.Action.REMOVE_PLAYER));
+                if (self.bodyAlign())
+                    self.update(VirtualEntityUpdate.animation(WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_MAIN_ARM));
+            }, 20L);
+        }
+
     }
 
     private final class PacketFactory implements VirtualEntityPacketFactory {
@@ -91,7 +112,8 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
 
         @Override
         public Collection<PacketWrapper<?>> spawn() {
-            Location location = VirtualHumanEntityImpl.this.location();
+            final var human = VirtualHumanEntityImpl.this;
+            Location location = human.location();
 
             List<PacketWrapper<?>> packets = new ArrayList<>(4);
 
@@ -105,10 +127,27 @@ final class VirtualHumanEntityImpl extends VirtualEntityImpl implements VirtualH
                     )
             ));
 
-            VirtualEntityEquipment equipment = VirtualHumanEntityImpl.this.equipment();
-            if(!equipment.isEmpty())
-                packets.addAll(equipment.toUpdate().packets(VirtualHumanEntityImpl.this));
+            VirtualEntityEquipment equipment = human.equipment();
+            if (!equipment.isEmpty()) {
+                packets.addAll(equipment.toUpdate().packets(human));
+            }
 
+            packets.addAll(VirtualEntityUpdate.team(
+                    "npc",
+                    empty(),
+                    NamedTextColor.GOLD,
+                    empty(),
+                    empty(),
+                    WrapperPlayServerTeams.NameTagVisibility.NEVER,
+                    WrapperPlayServerTeams.CollisionRule.NEVER,
+                    WrapperPlayServerTeams.OptionData.NONE,
+                    Collections.singleton(profile.getName())
+            ).packets(human));
+
+            final var metadataPacket = new WrapperPlayServerEntityMetadata(human.id(), new ArrayList<>(dataWatcher()));
+            packets.add(metadataPacket);
+
+            packets.add(new WrapperPlayServerEntityHeadLook(human.id(), location.getYaw()));
             return packets;
         }
 

@@ -6,6 +6,11 @@ import pt.supercrafting.entity.type.VirtualEntity;
 
 public interface VirtualEntityVisibilityRule {
 
+    @NotNull
+    static VirtualEntityVisibilityRule always() {
+        return (entity, player) -> true;
+    }
+
     boolean canSee(@NotNull VirtualEntity entity, @NotNull Player player);
 
 }
