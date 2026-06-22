@@ -29,7 +29,7 @@ A player-like NPC with a custom skin:
 
 ```java
 VirtualHumanEntity human = entityLib.createHuman(location);
-human.skin(new Skin("base64_textures", "optional_signature"));
+human.skin(new Skin("base64_textures", "signature"));
 ```
 
 ### Wrapping a Bukkit Entity
