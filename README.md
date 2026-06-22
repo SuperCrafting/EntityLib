@@ -29,17 +29,27 @@ A player-like NPC with a custom skin:
 
 ```java
 VirtualHumanEntity human = entityLib.createHuman(location);
-human.skin(new Skin("base64_textures", "signature"));
+human.skin(new Skin("textures", "signature"));
 ```
 
 ### Wrapping a Bukkit Entity
 
-Use a real Bukkit entity (metadata synced automatically):
+Wrap a real Bukkit entity to use it as a virtual entity. Its metadata is automatically synced to all viewers.
+
+> **Note:** Only changes that affect `EntityData` (like custom name, flags...) are propagated. Teleport or equipment changes made directly on the Bukkit entity won't be visible to viewers.
 
 ```java
 VirtualBukkitEntity<Zombie> zombie = entityLib.createBukkit(location, Zombie.class);
 
-zombie.modify(z -> z.setCustomName(Component.text("My Zombie")));
+zombie.modify(bukkitZombie -> bukkitZombie.setCustomNameVisible(true));
+```
+
+or batch multiple editions
+```java
+zombie.modify(bukkitZombie -> {
+    bukkitZombie.setCustomName("My tiny zombie");
+    bukkitZombie.setBaby(true);
+});
 ```
 
 ---
