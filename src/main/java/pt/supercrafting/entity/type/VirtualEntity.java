@@ -54,6 +54,11 @@ public sealed interface VirtualEntity permits VirtualBukkitEntity, VirtualEntity
 
     void location(@NotNull Location location);
 
+    default VirtualEntityUpdate teleport(@NotNull Location location) {
+        location(location);
+        return VirtualEntityUpdate.teleport(location);
+    }
+
     @NotNull
     VirtualEntityVisibility visibility();
 
