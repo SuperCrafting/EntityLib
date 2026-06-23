@@ -72,6 +72,7 @@ record VirtualEntityVisibilityImpl(@NotNull VirtualEntity entity,
         Objects.requireNonNull(player, "player cannot be null");
         if (viewers.remove(player)) {
             this.entity.update(entity.destroy(), Collections.singleton(player));
+            this.entity.visibility().onHide(entity, player);
             return true;
         }
         return false;
