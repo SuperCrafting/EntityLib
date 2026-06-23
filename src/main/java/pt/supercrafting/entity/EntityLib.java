@@ -5,6 +5,8 @@ import com.github.retrooper.packetevents.PacketEventsAPI;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityType;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -53,5 +55,8 @@ public sealed interface EntityLib permits EntityLibImpl {
 
     @NotNull
     VirtualHumanEntity createHuman(@NotNull Location location);
+
+    @NotNull
+    VirtualBukkitEntity<Item> createItem(@NotNull final Location location, @NotNull final ItemStack itemStack);
 
 }

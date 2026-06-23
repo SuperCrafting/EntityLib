@@ -13,7 +13,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +26,7 @@ import pt.supercrafting.entity.type.VirtualHumanEntity;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,8 +35,15 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
 
     private static final MethodHandle CREATE_ENTITY_METHOD;
 
+    private static final MethodHandle ITEM_AS_NMS_COPY;
+    private static final MethodHandle ITEM_GET_WORLD_HANDLE;
+    private static final MethodHandle ITEM_GET_BUKKIT_ENTITY;
+    private static final MethodHandle ITEM_ENTITY_CONSTRUCTOR;
+
     static {
         try {
+            final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
             World firstWorld = Bukkit.getWorlds().get(0);
 
             Method method = firstWorld.getClass().getDeclaredMethod(
@@ -44,11 +54,34 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
 
             method.setAccessible(true);
 
-            CREATE_ENTITY_METHOD = MethodHandles.lookup().unreflect(method);
+            CREATE_ENTITY_METHOD = lookup.unreflect(method);
+
+            ITEM_AS_NMS_COPY = lookup.unreflect(SpigotReflectionUtil.CRAFT_ITEM_STACK_AS_NMS_COPY);
+            ITEM_GET_WORLD_HANDLE = lookup.unreflect(SpigotReflectionUtil.GET_CRAFT_WORLD_HANDLE_METHOD);
+            ITEM_GET_BUKKIT_ENTITY = lookup.unreflect(SpigotReflectionUtil.GET_BUKKIT_ENTITY_METHOD);
+
+            Class<?> entityItemClass = resolveEntityItemClass();
+            ITEM_ENTITY_CONSTRUCTOR = lookup.findConstructor(
+                    entityItemClass,
+                    MethodType.methodType(void.class,
+                            SpigotReflectionUtil.LEVEL_CLASS,
+                            double.class, double.class, double.class,
+                            SpigotReflectionUtil.NMS_ITEM_STACK_CLASS
+                    )
+            );
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize EntityLib", e);
         }
+    }
+
+    private static Class<?> resolveEntityItemClass() {
+        Class<?> cls = SpigotReflectionUtil.getServerClass("world.entity.item.ItemEntity", "EntityItem");
+        if (cls == null)
+            cls = SpigotReflectionUtil.getServerClass("world.entity.item.EntityItem", "EntityItem");
+        if (cls == null)
+            throw new IllegalStateException("Could not resolve EntityItem / ItemEntity class");
+        return cls;
     }
 
     private final PacketEventsAPI<?> packetEvents;
@@ -181,6 +214,26 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
         );
         registerEntity(human);
         return human;
+    }
+
+    @NotNull
+    @Override
+    public VirtualBukkitEntity<Item> createItem(@NotNull final Location location, @NotNull final ItemStack itemStack) {
+        Objects.requireNonNull(location, "location cannot be null");
+        Objects.requireNonNull(itemStack, "itemStack cannot be null");
+        if (location.getWorld() == null) throw new IllegalArgumentException("location has no world");
+
+        try {
+            Object nmsItem = ITEM_AS_NMS_COPY.invoke(itemStack);
+            Object nmsWorld = ITEM_GET_WORLD_HANDLE.invoke(location.getWorld());
+            Object nmsEntity = ITEM_ENTITY_CONSTRUCTOR.invoke(nmsWorld, location.getX(), location.getY(), location.getZ(), nmsItem);
+            Item item = (Item) ITEM_GET_BUKKIT_ENTITY.invoke(nmsEntity);
+            VirtualBukkitEntity<Item> entity = VirtualBukkitEntity.create(item);
+            registerEntity(entity);
+            return entity;
+        } catch (Throwable t) {
+            throw new RuntimeException("Failed to create item entity", t);
+        }
     }
 
 }
