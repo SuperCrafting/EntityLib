@@ -8,7 +8,8 @@ public interface VirtualEntityVisibilityRule {
 
     @NotNull
     static VirtualEntityVisibilityRule always() {
-        return (entity, player) -> true;
+        return (entity, player) ->
+                player.getWorld() == entity.world() && player.getLocation().distance(entity.location()) <= 64;
     }
 
     boolean canSee(@NotNull VirtualEntity entity, @NotNull Player player);
