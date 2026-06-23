@@ -11,7 +11,6 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientIn
 import io.github.retrooper.packetevents.util.SpigotReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -34,10 +33,13 @@ final class EntityLibImpl extends PacketListenerAbstract implements EntityLib, R
 
     static {
         try {
-            World firstWorld = Bukkit.getWorlds().get(0);
 
-            Method method = firstWorld.getClass().getDeclaredMethod(
-                    "createEntity",
+            Class<?> craftRegionAccessorClass = SpigotReflectionUtil.getOBCClass("CraftRegionAccessor");
+            Class<?> targetClass = craftRegionAccessorClass != null
+                    ? craftRegionAccessorClass
+                    : SpigotReflectionUtil.CRAFT_WORLD_CLASS;
+
+            Method method = targetClass.getDeclaredMethod("createEntity",
                     Location.class,
                     Class.class
             );
